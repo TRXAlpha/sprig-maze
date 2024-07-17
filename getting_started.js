@@ -7,14 +7,14 @@
 Check the tutorial in the bottom right, the run button is in the top right.
 Make sure to remix this tutorial if you want to save your progress!
 */
-
 // define the sprites in our game
 const player = "p";
 const box = "b";
 const goal = "g";
 const wall = "w";
 
-// assign bitmap art to each sprite
+// defining the backgrounds
+const black = 'e'
 setLegend(
   [ player, bitmap`
 ................
@@ -83,8 +83,30 @@ setLegend(
 0000000000000000
 0000000000000000
 0000000000000000
+0000000000000000`],
+   [ black, bitmap`
+0000000000000000
+0000000000000000
+0000000000000000
+0000000000000000
+0000000000000000
+0000000000000000
+0000000000000000
+0000000000000000
+0000000000000000
+0000000000000000
+0000000000000000
+0000000000000000
+0000000000000000
+0000000000000000
+0000000000000000
 0000000000000000`]
 );
+setBackground(black);
+
+
+// assign bitmap art to each sprite
+
 
 // create game levels
 let level = 0; // this tracks the level we are on
@@ -153,6 +175,34 @@ onInput("a", () => {
   getFirst(player).x -= 1;
 });
 
+
+// Add text at the top (title)
+addText("The MAZE", { x: 4, y: 2, color: color`3` });
+
+// Add text in the middle (instruction to start)
+addText("Press 'i' to start", { x: 4, y: 8, color: color`7` });
+
+let isInMainMenu = true; // Keep track if the player is in the menu screen
+let isGameStarted = false;
+
+// Input to start the game or transition
+onInput("i", () => {
+  if (isInMainMenu) {
+    clearText(""); // Clear the existing text elements
+    addText("Select your difficulty", { x: 4, y: 2, color: color`3` });
+    addText("Press 'g' to start the game", { x: 4, y: 8, color: color`7` });
+    setBackground(black);
+
+    isInMainMenu = false; // Update the flag to show the game menu
+  } else if (!isGameStarted) {
+    clearText(""); // Clear the menu text
+    isGameStarted = true; // Update the flag to indicate that the game has started
+    setMap(currentLevel); // Show the current level map
+    setBackground(white);
+  }
+});
+
+
 // input to reset level
 onInput("j", () => {
   const currentLevel = levels[level]; // get the original map of the level
@@ -166,6 +216,7 @@ onInput("j", () => {
 
 // these get run after every input
 afterInput(() => {
+  if(!isInMainMenu && isGameStarted){
   // count the number of tiles with goals
   const targetNumber = tilesWith(goal).length;
   
@@ -176,7 +227,7 @@ afterInput(() => {
   // all goals are covered and we can go to the next level
   if (numberCovered === targetNumber) {
     // increase the current level number
-    level = level + 1;
+    level ++;
 
     const currentLevel = levels[level];
 
@@ -188,5 +239,6 @@ afterInput(() => {
     } else {
       addText("you win!", { y: 4, color: color`7` });
     }
+  }
   }
 });

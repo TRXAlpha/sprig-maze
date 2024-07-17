@@ -131,79 +131,118 @@ const mediumLevels = [
 p..g
 .b..
 ..w.
-...w`,
+..w.`,
   map`
 p..w
 .b.w
 ..g.
 ..w.`,
   map`
-p..ww
-.b.ww
-..wgw
-....w
-.....`,
+p..w
+.b.w
+...g
+..w.`,
   map`
 p..w
 .bb.w
 ..wg
 ..w.`,
   map`
-pw.w
-.bb.
+p..w
+.b..
 ..g.
 ..w.`,
   map`
-p..w
+p...
 .bb.w
 ..wg
 ..ww`,
   map`
 p..w
 .bw.b
-..wg
+...g
 ..ww`
 ];
 let hardLevel = 0; // this tracks the level we are on
 const hardLevels = [
   map`
-p..w
-.bwg
-..ww
-..ww`,
+p.......gw
+.ww.ww.www
+.b..w...w.
+w.w.w.w.w.
+w.w.w.w.w.
+w.w.w.w.w.
+w.w.w.w.w.
+w.w.w.w.w.
+w.w.w.w.w.
+w.......w.`,
   map`
-p..w
-.bww
-..wg
-..ww`,
+p....ww..gw
+.ww...w...w
+.w....w....
+.w.bw.w.w..
+.w..w.w.w.w
+.w.ww.w.w.w
+.w.ww.w.w.w
+.w.ww.w.w.w
+.w........w
+...w.w.w..w`,
   map`
-p..w
-.bww
-..wg
-..ww`,
+p........gw
+ww.wwww.www
+.......w...
+w...w......
+w.w.wwwww.w
+w.w.......w
+w.w.ww.w.w.
+w.w....w..w
+w.wwwwbw.w.
+w.......w.w`,
   map`
-p..w
-.bb.w
-..wg
-..ww`,
+p..g....w.
+..ww.w.w..
+.b.w.w.w..
+w.w.w.w...
+w.w.w.w.w.
+w.w.w.w.w.
+w.w.w.w.w.
+w.w.w.w.w.
+w...w.w.w.
+.w.w.w.w.w`,
   map`
-p..w
-.bww
-..wg
-..ww`,
+wp.......g
+w.w.wwww.w
+w.w..b...w
+w.w.w.w..w
+w.w.w.w.w.
+w.w.w.w.w.
+w.w.w.w.w.
+w.w.w.w.w.
+w.w.w.w.w.
+w...w...w.`,
   map`
-p..w
-.bw.w
-..wg
-..ww`,
+p...g.w..w
+.ww.ww.w..
+.w....b...
+.w...w.w.w
+.w.w.w.w.w
+.w.w.w.w.w
+.w.w.w.w.w
+.w.w.w...w
+.w....w..w
+...ww...ww`,
   map`
-p..w
-.bw.b
-..wg
-..ww`
+p.ww....wg
+w...www.w.
+....w...w.
+..w.w...w.
+w.w.w.w.w.
+w.w.w.w.w.
+w.w.w.w.w.
+w...w.w.w.
+wb........
+w.....w...`
 ];
-
-
 
 setSolids([player, box, wall]); // other sprites cannot go inside of these sprites
 
@@ -329,18 +368,7 @@ setMap(currentLevel);
   clearText(""); // Clear the menu text
   isGameStarted = true; // Update the flag to indicate that the game has started
   setMap(currentLevel); // Show the current level map
-if(currentLevel == 3){
-  setPushables({
-  [player]: [box],
-  [player]:[wall],
-  [box]:[box]
-});
-} else {
-  setPushables({
-  [player]: [box],
-  [box]: [box]
-});
-}
+
   // these get run after every input
   afterInput(() => {
     if (!isInMainMenu && isGameStarted) {

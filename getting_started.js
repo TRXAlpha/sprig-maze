@@ -1,22 +1,12 @@
-/*
-@title: getting_started
-@tags: ['beginner', 'tutorial']
-@addedOn: 2022-07-26
-@author: leo, edits: samliu, belle, kara
-
-Check the tutorial in the bottom right, the run button is in the top right.
-Make sure to remix this tutorial if you want to save your progress!
-*/
 // define the sprites in our game
 const player = "p";
 const box = "b";
 const goal = "g";
 const wall = "w";
 
-// defining the backgrounds
-const black = 'e'
+
 setLegend(
-  [ player, bitmap`
+  [player, bitmap`
 ................
 ................
 ................
@@ -33,7 +23,7 @@ setLegend(
 ................
 ................
 ................`],
-  [ box, bitmap`
+  [box, bitmap`
 ................
 ................
 ................
@@ -50,7 +40,7 @@ setLegend(
 ...88888888888..
 ................
 ................`],
-  [ goal, bitmap`
+  [goal, bitmap`
 ................
 ................
 ................
@@ -67,7 +57,7 @@ setLegend(
 ................
 ................
 ................`],
-  [ wall, bitmap`
+  [wall, bitmap`
 0000000000000000
 0000000000000000
 0000000000000000
@@ -84,30 +74,18 @@ setLegend(
 0000000000000000
 0000000000000000
 0000000000000000`],
-   [ black, bitmap`
-0000000000000000
-0000000000000000
-0000000000000000
-0000000000000000
-0000000000000000
-0000000000000000
-0000000000000000
-0000000000000000
-0000000000000000
-0000000000000000
-0000000000000000
-0000000000000000
-0000000000000000
-0000000000000000
-0000000000000000
-0000000000000000`]
+
 );
-setBackground(black);
 
 
-// assign bitmap art to each sprite
-
-
+const noLevel = map`
+wwwwwww
+wwwwwww
+wwwwwww
+wwwwwww
+wwwwwww
+wwwwwww
+wwwwwww`
 // create game levels
 let level = 0; // this tracks the level we are on
 const levels = [
@@ -137,7 +115,7 @@ p...
 p.w.
 .bwg
 ....
-..bg` ,
+..bg`,
   map`
 gw...gw
 .b..www
@@ -152,14 +130,13 @@ ww..www`
 const currentLevel = levels[level];
 setMap(currentLevel);
 
-setSolids([ player, box, wall ]); // other sprites cannot go inside of these sprites
+setSolids([player, box, wall]); // other sprites cannot go inside of these sprites
 
 // allow certain sprites to push certain other sprites
 setPushables({
   [player]: [box],
-  [box]: [ box ]
+  [box]: [box]
 });
-
 // inputs for player movement control
 onInput("s", () => {
   getFirst(player).y += 1; // positive y is downwards
@@ -174,71 +151,95 @@ onInput("d", () => {
 onInput("a", () => {
   getFirst(player).x -= 1;
 });
-
-
 // Add text at the top (title)
-addText("The MAZE", { x: 4, y: 2, color: color`3` });
+addText("THE MAZE", { x: 6, y: 2, color: color`3` });
 
 // Add text in the middle (instruction to start)
-addText("Press 'i' to start", { x: 4, y: 8, color: color`7` });
+addText("Press 'i' to start", { x: 1, y: 8, color: color`7` });
 
 let isInMainMenu = true; // Keep track if the player is in the menu screen
 let isGameStarted = false;
+let difficulty = "easy"; // default difficulty
 
 // Input to start the game or transition
 onInput("i", () => {
   if (isInMainMenu) {
-    clearText(""); // Clear the existing text elements
-    addText("Select your difficulty", { x: 4, y: 2, color: color`3` });
-    addText("Press 'g' to start the game", { x: 4, y: 8, color: color`7` });
-    setBackground(black);
+    clearText(); // Clear the existing text elements
+    addText("Select Difficulty", { x: 2, y: 2, color: color`3` });
+    addText("easy (press j)", { x: 3, y: 6, color: color`7` });
+    addText("medium (press k)", { x: 3, y: 8, color: color`7` });
+    addText("hard (press l)", { x: 3, y: 10, color: color`7` });
+
 
     isInMainMenu = false; // Update the flag to show the game menu
-  } else if (!isGameStarted) {
-    clearText(""); // Clear the menu text
-    isGameStarted = true; // Update the flag to indicate that the game has started
-    setMap(currentLevel); // Show the current level map
-    setBackground(white);
   }
 });
-
-
-// input to reset level
+while (isInMainMenu){
+  setMap(noLevel);
+// Inputs to select difficulty
 onInput("j", () => {
-  const currentLevel = levels[level]; // get the original map of the level
-
-  // make sure the level exists before we load it
-  if (currentLevel !== undefined) {
-    clearText("");
-    setMap(currentLevel);
+  if (!isInMainMenu && !isGameStarted) {
+    difficulty = "easy";
+    startGame();
   }
 });
 
-// these get run after every input
-afterInput(() => {
-  if(!isInMainMenu && isGameStarted){
-  // count the number of tiles with goals
-  const targetNumber = tilesWith(goal).length;
-  
-  // count the number of tiles with goals and boxes
-  const numberCovered = tilesWith(goal, box).length;
+onInput("k", () => {
+  if (!isInMainMenu && !isGameStarted) {
+    difficulty = "medium";
+    startGame();
+  }
+});
 
-  // if the number of goals is the same as the number of goals covered
-  // all goals are covered and we can go to the next level
-  if (numberCovered === targetNumber) {
-    // increase the current level number
-    level ++;
+onInput("l", () => {
+  if (!isInMainMenu && !isGameStarted) {
+    difficulty = "hard";
+    startGame();
+  }
+});
 
-    const currentLevel = levels[level];
+// Start the game
+function startGame() {
+  clearText(""); // Clear the menu text
+  isGameStarted = true; // Update the flag to indicate that the game has started
+  setMap(currentLevel); // Show the current level map
 
-    // make sure the level exists and if so set the map
-    // otherwise, we have finished the last level, there is no level
-    // after the last level
-    if (currentLevel !== undefined) {
-      setMap(currentLevel);
-    } else {
-      addText("you win!", { y: 4, color: color`7` });
+  // these get run after every input
+  afterInput(() => {
+    if (!isInMainMenu && isGameStarted) {
+      // count the number of tiles with goals
+      const targetNumber = tilesWith(goal).length;
+
+      // count the number of tiles with goals and boxes
+      const numberCovered = tilesWith(goal, box).length;
+
+      // if the number of goals is the same as the number of goals covered
+      // all goals are covered and we can go to the next level
+      if (numberCovered === targetNumber) {
+        // increase the current level number
+        level++;
+
+        const currentLevel = levels[level];
+
+        // make sure the level exists and if so set the map
+        // otherwise, we have finished the last level, there is no level
+        // after the last level
+        if (currentLevel !== undefined) {
+          setMap(currentLevel);
+        } else {
+          addText("you win!", { y: 4, color: color`7` });
+        }
+      }
     }
-  }
-  }
-});
+    onInput("i", () => {
+      const currentLevel = levels[level]; // get the original map of the level
+
+      // make sure the level exists before we load it
+      if (currentLevel !== undefined) {
+        clearText("");
+        setMap(currentLevel);
+      }
+    });
+  });
+}
+}

@@ -1,59 +1,42 @@
-// define the sprites in our game
 const player = "p";
-const box = "b";
 const goal = "g";
 const wall = "w";
+const path = ".";
+const box = "b";
 
-
+// Define the sprites in our game
 setLegend(
   [player, bitmap`
 ................
-................
-................
-.......0........
-.....00.000.....
-....0.....00....
-....0.0.0..0....
-....0......0....
-....0......0....
-....00....0.....
-......00000.....
-......0...0.....
-....000...000...
-................
-................
-................`],
-  [box, bitmap`
-................
-................
-................
-...88888888888..
-...8....8....8..
-...8....8....8..
-...8....8....8..
-...8....8....8..
-...88888888888..
-...8....8....8..
-...8....8....8..
-...8....8....8..
-...8....8....8..
-...88888888888..
-................
-................`],
+....000000......
+...0......0.....
+...0.0..0.0.....
+...0......0.....
+...0.0..0.0.....
+...0.0000.0.....
+...0......0.....
+....000000......
+......0.........
+...0..0...0.....
+...00000000.....
+......0.........
+......0.........
+....00.00.......
+....0...0.......`],
   [goal, bitmap`
 ................
 ................
+...333333333....
+...3.......3....
+...3.33333.3....
+..33.33233.33...
+..3..33233..3...
+..3..33333..3...
+..3.........3...
+..3.........3...
+..3.........3...
+..3.........3...
 ................
-....444444......
-...44....44.....
-...4......4.....
-...4.......4....
-...4.......4....
-...4.......4....
-...44......4....
-....4......4....
-....44....44....
-.....444444.....
 ................
 ................
 ................`],
@@ -74,9 +57,24 @@ setLegend(
 0000000000000000
 0000000000000000
 0000000000000000`],
-
+   [box, bitmap`
+................
+................
+................
+...88888888888..
+...8....8....8..
+...8....8....8..
+...8....8....8..
+...8....8....8..
+...88888888888..
+...8....8....8..
+...8....8....8..
+...8....8....8..
+...8....8....8..
+...88888888888..
+................
+................`]
 );
-
 
 const noLevel = map`
 wwwwwww
@@ -85,7 +83,8 @@ wwwwwww
 wwwwwww
 wwwwwww
 wwwwwww
-wwwwwww`
+wwwwwww`;
+
 // create game levels
 let easyLevel = 0; // this tracks the level we are on
 const easyLevels = [
@@ -143,25 +142,9 @@ p..w
 ...g
 ..w.`,
   map`
-p..w
-.bb.w
-..wg
-..w.`,
-  map`
-p..w
-.b..
-..g.
-..w.`,
-  map`
-p...
-.bb.w
-..wg
-..ww`,
-  map`
-p..w
-.bw.b
-...g
-..ww`
+.p..w
+..b..
+...g.`,
 ];
 let hardLevel = 0; // this tracks the level we are on
 const hardLevels = [
@@ -189,7 +172,7 @@ p....ww..gw
 ...w.w.w..w`,
   map`
 p........gw
-ww.wwww.www
+w..wwww.www
 .......w...
 w...w......
 w.w.wwwww.w
@@ -200,15 +183,15 @@ w.wwwwbw.w.
 w.......w.w`,
   map`
 p..g....w.
-..ww.w.w..
-.b.w.w.w..
-w.w.w.w...
+..wwww.w..
+.bw..w.w..
+w.w...w...
+w.w.....w.
+w.w.www.w.
 w.w.w.w.w.
-w.w.w.w.w.
-w.w.w.w.w.
-w.w.w.w.w.
-w...w.w.w.
-.w.w.w.w.w`,
+..w..ww.w.
+.....ww.w.
+.........w`,
   map`
 wp.......g
 w.w.wwww.w
@@ -251,7 +234,7 @@ setPushables({
   [player]: [box],
   [box]: [box]
 });
-// inputs for player movement control
+// inputs for player movement controlaa
 onInput("s", () => {
   getFirst(player).y += 1; // positive y is downwards
 });
@@ -274,7 +257,6 @@ addText("Press 'i' to start", { x: 1, y: 8, color: color`7` });
 let isInMainMenu = true; // Keep track if the player is in the menu screen
 let isGameStarted = false;
 
-
 // Input to start the game or transition
 onInput("i", () => {
   if (isInMainMenu) {
@@ -283,176 +265,105 @@ onInput("i", () => {
     addText("easy (press j)", { x: 3, y: 6, color: color`7` });
     addText("medium (press k)", { x: 3, y: 8, color: color`7` });
     addText("hard (press l)", { x: 3, y: 10, color: color`7` });
-    addText("press i to restart", {x :1, y: 13, color: color`8`});
-
+    addText("random (press i)", { x: 3, y: 12, color: color`7` });
 
     isInMainMenu = false; // Update the flag to show the game menu
+  } else if (!isGameStarted) {
+    startRandomGame();
   }
 });
-if (isInMainMenu){
+
+if (isInMainMenu) {
   setMap(noLevel);
+}
 // Inputs to select difficulty
 onInput("j", () => {
   if (!isInMainMenu && !isGameStarted) {
-
     startEasyGame();
   }
 });
 
 onInput("k", () => {
   if (!isInMainMenu && !isGameStarted) {
-
     startMediumGame();
   }
 });
 
 onInput("l", () => {
   if (!isInMainMenu && !isGameStarted) {
-
     startHardGame();
   }
 });
 
 // Start the games based on the difficulty
 function startEasyGame() {
-  // set the map displayed to the current level
-const currentLevel = easyLevels[easyLevel];
-setMap(currentLevel);
-  clearText(""); // Clear the menu text
+  const currentLevel = easyLevels[easyLevel];
+  setMap(currentLevel);
+  clearText(); // Clear the menu text
   isGameStarted = true; // Update the flag to indicate that the game has started
-  setMap(currentLevel); // Show the current level map
 
-  // these get run after every input
-  afterInput(() => {
-    if (!isInMainMenu && isGameStarted) {
-      // count the number of tiles with goals
-      const targetNumber = tilesWith(goal).length;
-
-      // count the number of tiles with goals and boxes
-      const numberCovered = tilesWith(goal, box).length;
-
-      // if the number of goals is the same as the number of goals covered
-      // all goals are covered and we can go to the next level
-      if (numberCovered === targetNumber) {
-        // increase the current level number
-        easyLevel++;
-
-        const currentLevel = easyLevels[easyLevel];
-
-        // make sure the level exists and if so set the map
-        // otherwise, we have finished the last level, there is no level
-        // after the last level
-        if (currentLevel !== undefined) {
-          setMap(currentLevel);
-        } else {
-          setMap(noLevel);
-          addText("you win!", { y: 4, color: color`7` });
-        }
-      }
-    }
-    onInput("i", () => {
-      const currentLevel = easyLevels[easyLevel]; // get the original map of the level
-
-      // make sure the level exists before we load it
-      if (currentLevel !== undefined) {
-        clearText("");
-        setMap(currentLevel);
-      }
-    });
-  });
+  afterInput(checkCompletion);
 }
+
 function startMediumGame() {
-  // set the map displayed to the current level
-const currentLevel = mediumLevels[mediumLevel];
-setMap(currentLevel);
-  clearText(""); // Clear the menu text
+  const currentLevel = mediumLevels[mediumLevel];
+  setMap(currentLevel);
+  clearText(); // Clear the menu text
   isGameStarted = true; // Update the flag to indicate that the game has started
-  setMap(currentLevel); // Show the current level map
 
-  // these get run after every input
-  afterInput(() => {
-    if (!isInMainMenu && isGameStarted) {
-      // count the number of tiles with goals
-      const targetNumber = tilesWith(goal).length;
-
-      // count the number of tiles with goals and boxes
-      const numberCovered = tilesWith(goal, box).length;
-
-      // if the number of goals is the same as the number of goals covered
-      // all goals are covered and we can go to the next level
-      if (numberCovered === targetNumber) {
-        // increase the current level number
-        mediumLevel++;
-
-        const currentLevel = mediumLevels[mediumLevel];
-
-        // make sure the level exists and if so set the map
-        // otherwise, we have finished the last level, there is no level
-        // after the last level
-        if (currentLevel !== undefined) {
-          setMap(currentLevel);
-        } else {
-          setMap(noLevel);
-          addText("you win!", { y: 4, color: color`7` });
-        }
-      }
-    }
-    onInput("i", () => {
-      const currentLevel = mediumLevels[mediumLevel]; // get the original map of the level
-
-      // make sure the level exists before we load it
-      if (currentLevel !== undefined) {
-        clearText("");
-        setMap(currentLevel);
-      }
-    });
-  });
+  afterInput(checkCompletion);
 }
+
 function startHardGame() {
-  // set the map displayed to the current level
-const currentLevel = hardLevels[hardLevel];
-setMap(currentLevel);
-  clearText(""); // Clear the menu text
+  const currentLevel = hardLevels[hardLevel];
+  setMap(currentLevel);
+  clearText(); // Clear the menu text
   isGameStarted = true; // Update the flag to indicate that the game has started
-  setMap(currentLevel); // Show the current level map
 
-  // these get run after every input
-  afterInput(() => {
-    if (!isInMainMenu && isGameStarted) {
-      // count the number of tiles with goals
-      const targetNumber = tilesWith(goal).length;
+  afterInput(checkCompletion);
+}
 
-      // count the number of tiles with goals and boxes
-      const numberCovered = tilesWith(goal, box).length;
+function startRandomGame() {
+  const randomMaze = generateRandomMaze(5, 5);
+  setMap(randomMaze);
+  clearText(); // Clear the menu text
+  isGameStarted = true; // Update the flag to indicate that the game has started
 
-      // if the number of goals is the same as the number of goals covered
-      // all goals are covered and we can go to the next level
-      if (numberCovered === targetNumber) {
-        // increase the current level number
-        hardLevel++;
+  afterInput(checkCompletion);
+}
 
-        const currentLevel = hardLevels[hardLevel];
-
-        // make sure the level exists and if so set the map
-        // otherwise, we have finished the last level, there is no level
-        // after the last level
-        if (currentLevel !== undefined) {
-          setMap(currentLevel);
-        } else {
-          setMap(noLevel);
-          addText("you win!", { y: 4, color: color`7` });
-        }
-      }
+// Function to generate a random maze
+function generateRandomMaze(width, height) {
+  let maze = [];
+  for (let y = 0; y < height; y++) {
+    let row = "";
+    for (let x = 0; x < width; x++) {
+      row += (Math.random() > 0.7 ? "w" : ".");
     }
-    onInput("i", () => {
-      const currentLevel = hardLevels[hardLevel]; // get the original map of the level
+    maze.push(row);
+  }
+  maze[0] = maze[0].slice(0, 1) + "p" + maze[0].slice(2); // Place player at (1, 0)
+  maze[height - 1] = maze[height - 1].slice(0, width - 2) + "g" + maze[height - 1].slice(width - 1); // Place goal at (width-2, height-1)
+  return map`${maze.join("\n")}`;
+}
 
-      // make sure the level exists before we load it
-      if (currentLevel !== undefined) {
-        clearText("");
-        setMap(currentLevel);
-      }
-    });
-  });
+// Check for level completion
+function checkCompletion() {
+  if (!isInMainMenu && isGameStarted) {
+    const targetNumber = tilesWith(goal).length;
+    const numberCovered = tilesWith(goal, box).length;
+
+    if (numberCovered === targetNumber) {
+      clearText();
+      setMap(noLevel);
+      addText("you win!", { y: 4, color: color`7` });
+
+      isGameStarted = false;
+      easyLevel = 0;
+      mediumLevel = 0;
+      hardLevel = 0;
+      isInMainMenu = true;
+    }
+  }
 }
-}
+
